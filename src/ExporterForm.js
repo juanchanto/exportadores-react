@@ -146,29 +146,37 @@ const ExporterForm = () => {
             <Form onSubmit={handleCreateExporter}>
                 <Row className="mb-3">
                     <Col md={3}>
+                        <Form.Label htmlFor="company.identificationType">ID Type</Form.Label>
                         <Form.Control type="text" name="company.identificationType" value={newExporter.company.identificationType} onChange={handleInputChange} placeholder="ID Type" required />
                     </Col>
                     <Col md={3}>
+                        <Form.Label htmlFor="company.identification">Identification</Form.Label>
                         <Form.Control type="text" name="company.identification" value={newExporter.company.identification} onChange={handleInputChange} placeholder="ID" required />
                     </Col>
                     <Col md={3}>
+                        <Form.Label htmlFor="company.name">Name</Form.Label>
                         <Form.Control type="text" name="company.name" value={newExporter.company.name} onChange={handleInputChange} placeholder="Company Name" required />
                     </Col>
                     <Col md={3}>
+                        <Form.Label htmlFor="sector">Sector</Form.Label>
                         <Form.Control type="text" name="sector" value={newExporter.sector} onChange={handleInputChange} placeholder="Sector" maxLength={4} required />
                     </Col>
                 </Row>
                 <Row className="mb-3">
                     <Col md={3}>
+                        <Form.Label htmlFor="acceptance">Acceptance</Form.Label>
                         <Form.Control type="date" name="acceptance" value={newExporter.acceptance} onChange={e => handleDateChange(e.target.value, 'acceptance')} placeholder="Acceptance" required />
                     </Col>
                     <Col md={3}>
+                        <Form.Label htmlFor="expiration">Expiration</Form.Label>
                         <Form.Control type="date" name="expiration" value={newExporter.expiration} onChange={e => handleDateChange(e.target.value, 'expiration')} placeholder="Expiration" required />
                     </Col>
                     <Col md={3}>
+                        <Form.Label htmlFor="email">Email</Form.Label>
                         <Form.Control type="email" name="email" value={newExporter.email} onChange={handleInputChange} placeholder="Email" required />
                     </Col>
-                    <Col md={3}>
+                    <Col md={1}>
+                        <Form.Label htmlFor="status">Estado</Form.Label>
                         <Form.Check
                             type="checkbox"
                             name="status"
@@ -180,12 +188,15 @@ const ExporterForm = () => {
                 </Row>
                 <Row className="mb-3">
                     <Col md={4}>
+                        <Form.Label htmlFor="province">Province</Form.Label>
                         <Form.Control type="number" name="province" value={newExporter.province} onChange={handleInputChange} placeholder="Province" min={0} max={99} required />
                     </Col>
                     <Col md={4}>
+                        <Form.Label htmlFor="canton">Canton</Form.Label>
                         <Form.Control type="number" name="canton" value={newExporter.canton} onChange={handleInputChange} min={0} max={99} placeholder="Canton" required />
                     </Col>
                     <Col md={4}>
+                        <Form.Label htmlFor="district">District</Form.Label>
                         <Form.Control type="number" name="district" value={newExporter.district} onChange={handleInputChange} min={0} max={99} placeholder="District" required />
                     </Col>
                 </Row>
@@ -223,8 +234,8 @@ const ExporterForm = () => {
                             <td>{exporter.email}</td>
                             <td>{exporter.status === 'A' ? 'Active' : 'Inactive'}</td>
                             <td>
-                                <Button 
-                                    variant={exporter.status === 'A' ? 'warning' : 'success'} 
+                                <Button
+                                    variant={exporter.status === 'A' ? 'warning' : 'success'}
                                     onClick={(e) => { e.stopPropagation(); handleToggleStatus(exporter.id, exporter.status); }}
                                 >
                                     {exporter.status === 'A' ? 'Deactivate' : 'Activate'}
