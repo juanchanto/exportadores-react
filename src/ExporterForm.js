@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Row, Col, Button, Table } from 'react-bootstrap';
+import { Container, Form, Row, Col, Button, Table, Modal } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ExporterForm = () => {
@@ -22,6 +22,7 @@ const ExporterForm = () => {
         email: '',
         sector: ''
     });
+    const [selectedExporter, setSelectedExporter] = useState(null);
 
     useEffect(() => {
         fetchExporters();
@@ -126,14 +127,22 @@ const ExporterForm = () => {
         setSearchTerm(e.target.value);
     };
 
+    const handleRowClick = (exporter) => {
+        setSelectedExporter(exporter);
+    };
+
+    const handleCloseModal = () => {
+        setSelectedExporter(null);
+    };
+
     const filteredExporters = exporters.filter(exporter =>
         exporter.company.identification.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
         <Container className="mt-4">
-            <h2 className="mb-4">Exportadores</h2>
-            {/* Formulario para crear un nuevo exportador */}
+            <h2 className="mb-4">Exporters</h2>
+            {/* Formulario para crear exportador */}
             <Form onSubmit={handleCreateExporter}>
                 <Row className="mb-3">
                     <Col md={3}>
@@ -180,20 +189,22 @@ const ExporterForm = () => {
                         <Form.Control type="number" name="district" value={newExporter.district} onChange={handleInputChange} min={0} max={99} placeholder="District" required />
                     </Col>
                 </Row>
-                <Button type="submit" variant="primary">Crear Exportador</Button>
+                <Button type="submit" variant="primary">Create Exporter</Button>
             </Form>
-             {/* Campo de búsqueda */}
-             <Form.Group as={Row} className="mb-3">
+
+            {/* Componente para búsqueda */}
+            <Form.Group as={Row} className="mb-3">
                 <Col sm="3">
                     <Form.Control
                         type="text"
-                        placeholder="Buscar por Identificación"
+                        placeholder="Search by ID"
                         value={searchTerm}
                         onChange={handleSearchChange}
                     />
                 </Col>
             </Form.Group>
-            {/* Tabla de exportadores */}
+
+            {/* Tabla para exportadores */}
             <Table striped bordered hover className="mt-4">
                 <thead>
                     <tr>
@@ -206,24 +217,51 @@ const ExporterForm = () => {
                 </thead>
                 <tbody>
                     {filteredExporters.map(exporter => (
-                        <tr key={exporter.id}>
+                        <tr key={exporter.id} onClick={() => handleRowClick(exporter)}>
                             <td>{exporter.company.identification}</td>
                             <td>{exporter.company.name}</td>
                             <td>{exporter.email}</td>
-                            <td>{exporter.status === 'A' ? 'Activo' : 'Inactivo'}</td>
+                            <td>{exporter.status === 'A' ? 'Active' : 'Inactive'}</td>
                             <td>
                                 <Button 
                                     variant={exporter.status === 'A' ? 'warning' : 'success'} 
-                                    onClick={() => handleToggleStatus(exporter.id, exporter.status)}
+                                    onClick={(e) => { e.stopPropagation(); handleToggleStatus(exporter.id, exporter.status); }}
                                 >
-                                    {exporter.status === 'A' ? 'Desactivar' : 'Activar'}
+                                    {exporter.status === 'A' ? 'Deactivate' : 'Activate'}
                                 </Button>
-                                <Button variant="danger" onClick={() => handleDeleteExporter(exporter.id)} className="ml-2">Eliminar</Button>
+                                <Button variant="danger" onClick={(e) => { e.stopPropagation(); handleDeleteExporter(exporter.id); }} className="ml-2">Delete</Button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
+
+            {/* Modal para mostrar los detalles del exportador seleccionado */}
+            <Modal show={selectedExporter !== null} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Exporter details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {selectedExporter && (
+                        <div>
+                            <p><strong>Identification Type:</strong> {selectedExporter.company.identificationType}</p>
+                            <p><strong>Identification:</strong> {selectedExporter.company.identification}</p>
+                            <p><strong>Company Name:</strong> {selectedExporter.company.name}</p>
+                            <p><strong>Sector:</strong> {selectedExporter.sector}</p>
+                            <p><strong>Acceptance:</strong> {selectedExporter.acceptance}</p>
+                            <p><strong>Expiration:</strong> {selectedExporter.expiration}</p>
+                            <p><strong>Email:</strong> {selectedExporter.email}</p>
+                            <p><strong>Status:</strong> {selectedExporter.status === 'A' ? 'Active' : 'Inactive'}</p>
+                            <p><strong>Province:</strong> {selectedExporter.province}</p>
+                            <p><strong>Canton:</strong> {selectedExporter.canton}</p>
+                            <p><strong>District:</strong> {selectedExporter.district}</p>
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };
