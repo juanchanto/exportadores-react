@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const ExporterForm = () => {
     const BASE_URL_LOCAL = 'http://localhost:8080';
     const [exporters, setExporters] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [newExporter, setNewExporter] = useState({
         status: 'I',
         company: {
@@ -54,12 +55,7 @@ const ExporterForm = () => {
                     [name]: value
                 }));
             }
-        } /*else if (name === 'status') { // Handle status separately
-            setNewExporter(prevState => ({
-                ...prevState,
-                [name]: value // value here should be 'A' or 'I'
-            }));
-        }*/ else if (type === 'checkbox' || name === 'status') {
+        } else if (type === 'checkbox' || name === 'status') {
             setNewExporter(prevState => ({
                 ...prevState,
                 [name]: checked ? 'A' : 'I'
@@ -71,7 +67,6 @@ const ExporterForm = () => {
             }));
         }
     };
-    
 
     const handleDateChange = (date, field) => {
         setNewExporter(prevState => ({
@@ -127,37 +122,44 @@ const ExporterForm = () => {
             });
     };
 
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+    };
+
+    const filteredExporters = exporters.filter(exporter =>
+        exporter.company.identification.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <Container className="mt-4">
             <h2 className="mb-4">Exportadores</h2>
-
             {/* Formulario para crear un nuevo exportador */}
             <Form onSubmit={handleCreateExporter}>
                 <Row className="mb-3">
-                    <Col md={1}>
+                    <Col md={3}>
                         <Form.Control type="text" name="company.identificationType" value={newExporter.company.identificationType} onChange={handleInputChange} placeholder="ID Type" required />
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Control type="text" name="company.identification" value={newExporter.company.identification} onChange={handleInputChange} placeholder="ID" required />
                     </Col>
                     <Col md={3}>
                         <Form.Control type="text" name="company.name" value={newExporter.company.name} onChange={handleInputChange} placeholder="Company Name" required />
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Control type="text" name="sector" value={newExporter.sector} onChange={handleInputChange} placeholder="Sector" maxLength={4} required />
                     </Col>
                 </Row>
                 <Row className="mb-3">
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Control type="date" name="acceptance" value={newExporter.acceptance} onChange={e => handleDateChange(e.target.value, 'acceptance')} placeholder="Acceptance" required />
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Control type="date" name="expiration" value={newExporter.expiration} onChange={e => handleDateChange(e.target.value, 'expiration')} placeholder="Expiration" required />
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Control type="email" name="email" value={newExporter.email} onChange={handleInputChange} placeholder="Email" required />
                     </Col>
-                    <Col md={2}>
+                    <Col md={3}>
                         <Form.Check
                             type="checkbox"
                             name="status"
@@ -168,24 +170,34 @@ const ExporterForm = () => {
                     </Col>
                 </Row>
                 <Row className="mb-3">
-                    <Col md={1}>
+                    <Col md={4}>
                         <Form.Control type="number" name="province" value={newExporter.province} onChange={handleInputChange} placeholder="Province" min={0} max={99} required />
                     </Col>
-                    <Col md={1}>
+                    <Col md={4}>
                         <Form.Control type="number" name="canton" value={newExporter.canton} onChange={handleInputChange} min={0} max={99} placeholder="Canton" required />
                     </Col>
-                    <Col md={1}>
+                    <Col md={4}>
                         <Form.Control type="number" name="district" value={newExporter.district} onChange={handleInputChange} min={0} max={99} placeholder="District" required />
                     </Col>
                 </Row>
                 <Button type="submit" variant="primary">Crear Exportador</Button>
             </Form>
-
+             {/* Campo de búsqueda */}
+             <Form.Group as={Row} className="mb-3">
+                <Col sm="3">
+                    <Form.Control
+                        type="text"
+                        placeholder="Buscar por Identificación"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                    />
+                </Col>
+            </Form.Group>
             {/* Tabla de exportadores */}
             <Table striped bordered hover className="mt-4">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Identification</th>
                         <th>Company Name</th>
                         <th>Email</th>
                         <th>Status</th>
@@ -193,9 +205,9 @@ const ExporterForm = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {exporters.map(exporter => (
+                    {filteredExporters.map(exporter => (
                         <tr key={exporter.id}>
-                            <td>{exporter.id}</td>
+                            <td>{exporter.company.identification}</td>
                             <td>{exporter.company.name}</td>
                             <td>{exporter.email}</td>
                             <td>{exporter.status === 'A' ? 'Activo' : 'Inactivo'}</td>
