@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Form, Row, Col, Button, ListGroup } from 'react-bootstrap';
+import { Container, Form, Row, Col, Button, Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const ExporterForm = () => {
@@ -54,7 +54,12 @@ const ExporterForm = () => {
                     [name]: value
                 }));
             }
-        } else if (type === 'checkbox') {
+        } /*else if (name === 'status') { // Handle status separately
+            setNewExporter(prevState => ({
+                ...prevState,
+                [name]: value // value here should be 'A' or 'I'
+            }));
+        }*/ else if (type === 'checkbox' || name === 'status') {
             setNewExporter(prevState => ({
                 ...prevState,
                 [name]: checked ? 'A' : 'I'
@@ -66,6 +71,7 @@ const ExporterForm = () => {
             }));
         }
     };
+    
 
     const handleDateChange = (date, field) => {
         setNewExporter(prevState => ({
@@ -107,6 +113,17 @@ const ExporterForm = () => {
             })
             .catch(error => {
                 console.error('Error deleting exporter:', error);
+            });
+    };
+
+    const handleToggleStatus = (id, currentStatus) => {
+        const newStatus = currentStatus === 'A' ? 'I' : 'A';
+        axios.put(`${BASE_URL_LOCAL}/api/exporters/updateStatus/${id}`, { status: newStatus })
+            .then(response => {
+                fetchExporters(); // Refrescar la lista después de actualizar el estado
+            })
+            .catch(error => {
+                console.error('Error updating status:', error);
             });
     };
 
@@ -160,24 +177,41 @@ const ExporterForm = () => {
                     <Col md={1}>
                         <Form.Control type="number" name="district" value={newExporter.district} onChange={handleInputChange} min={0} max={99} placeholder="District" required />
                     </Col>
-
                 </Row>
                 <Button type="submit" variant="primary">Crear Exportador</Button>
             </Form>
 
-            {/* Lista de exportadores */}
-            <ListGroup className="mt-4">
-                {exporters.map(exporter => (
-                    <ListGroup.Item key={exporter.id} className="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>{exporter.company.name}</strong> - {exporter.email}
-                            <br />
-                            <small>{exporter.id}</small>
-                        </div>
-                        <Button variant="danger" onClick={() => handleDeleteExporter(exporter.id)}>Eliminar</Button>
-                    </ListGroup.Item>
-                ))}
-            </ListGroup>
+            {/* Tabla de exportadores */}
+            <Table striped bordered hover className="mt-4">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Company Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {exporters.map(exporter => (
+                        <tr key={exporter.id}>
+                            <td>{exporter.id}</td>
+                            <td>{exporter.company.name}</td>
+                            <td>{exporter.email}</td>
+                            <td>{exporter.status === 'A' ? 'Activo' : 'Inactivo'}</td>
+                            <td>
+                                <Button 
+                                    variant={exporter.status === 'A' ? 'warning' : 'success'} 
+                                    onClick={() => handleToggleStatus(exporter.id, exporter.status)}
+                                >
+                                    {exporter.status === 'A' ? 'Desactivar' : 'Activar'}
+                                </Button>
+                                <Button variant="danger" onClick={() => handleDeleteExporter(exporter.id)} className="ml-2">Eliminar</Button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
         </Container>
     );
 };
